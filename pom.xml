@@ -108,6 +108,10 @@
                             <inputSchema>PUBLIC</inputSchema>
                             <outputSchemaToDefault>true</outputSchemaToDefault>
                         </database>
+                        <generate>
+                            <validationAnnotations>true</validationAnnotations>
+                            <javaTimeTypes>true</javaTimeTypes>
+                        </generate>
                         <target>
                             <packageName>io.seventytwo.db</packageName>
                             <directory>target/generated-sources/jooq</directory>
