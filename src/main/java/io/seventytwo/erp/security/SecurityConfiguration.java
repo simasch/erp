@@ -16,13 +16,19 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
+    private static final String LOGIN_PROCESSING_URL = "/login";
+    private static final String LOGIN_FAILURE_URL = "/login?error";
+    private static final String LOGIN_URL = "/login";
+    private static final String LOGOUT_SUCCESS_URL = "/";
+
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        // Not using Spring CSRF here to be able to use plain HTML for the login page
-        http.csrf().disable()
+        http
+                // Not using Spring CSRF here to be able to use plain HTML for the login page
+                .csrf().disable()
                 // Register our CustomRequestCache, that saves unauthorized access attempts, so
                 // the user is redirected after login.
                 .requestCache().requestCache(new CustomRequestCache())
@@ -33,15 +39,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 // Allow all requests by logged in users.
                 .anyRequest().authenticated()
                 // Configure the login page.
-                .and().formLogin()
+                .and().formLogin().loginPage(LOGIN_URL).permitAll().loginProcessingUrl(LOGIN_PROCESSING_URL).failureUrl(LOGIN_FAILURE_URL)
                 // Register the success handler that redirects users to the page they last tried to access
                 .successHandler(new SavedRequestAwareAuthenticationSuccessHandler())
                 // Configure logout
-                .and().logout().logoutSuccessUrl("/");
+                .and().logout().logoutSuccessUrl(LOGOUT_SUCCESS_URL);
     }
 
     @Override
-    public void configure(WebSecurity web) throws Exception {
+    public void configure(WebSecurity web) {
         web.ignoring().antMatchers(
                 // Vaadin Flow static resources
                 "/VAADIN/**",
@@ -69,6 +75,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.inMemoryAuthentication()
+                .passwordEncoder(passwordEncoder)
                 .withUser("user")
                 .password(passwordEncoder.encode("user"))
                 .roles("USER");

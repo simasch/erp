@@ -19,8 +19,16 @@ public class DataProducer {
     @Transactional
     @EventListener(ApplicationReadyEvent.class)
     public void createCustomers() {
-        CustomerRecord customer = new CustomerRecord(null, "simon@martinelli.ch", "Martinelli", "Simon");
-        context.attach(customer);
-        customer.store();
+        CustomerRecord justus = new CustomerRecord(null, "justus@jonas.com", "Jonas", "Justus");
+        context.attach(justus);
+        justus.store();
+
+        CustomerRecord peter = new CustomerRecord(null, "peter@shaw.com", "Shaw", "Peter");
+        context.attach(peter);
+        peter.store();
+
+        CustomerRecord bob = new CustomerRecord(null, "bob@andrews.com", "Andrews", "Bob");
+        context.attach(bob);
+        bob.store();
     }
 }

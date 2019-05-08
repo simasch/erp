@@ -8,9 +8,13 @@ import com.vaadin.flow.router.RouterLink;
 
 @PageTitle("ERP")
 @Route("")
-public class IndexView extends VerticalLayout {
+public class MainView extends VerticalLayout {
 
-    public IndexView() {
+    public MainView() {
+        initUi();
+    }
+
+    private void initUi() {
         add(new H1("ERP"));
         add(new RouterLink("Customers", CustomersView.class));
     }

@@ -4,40 +4,49 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouterLink;
+import com.vaadin.flow.router.*;
 import io.seventytwo.db.tables.records.CustomerRecord;
 import org.jooq.DSLContext;
 
 import java.util.List;
 
 import static io.seventytwo.db.tables.Customer.CUSTOMER;
+import static io.seventytwo.erp.util.PropertyUtil.getPropertyName;
 
 @PageTitle("ERP")
 @Route("customers")
-public class CustomersView extends VerticalLayout {
+public class CustomersView extends VerticalLayout implements AfterNavigationObserver {
 
     private final DSLContext context;
+    private Grid<CustomerRecord> grid;
 
     public CustomersView(DSLContext context) {
         this.context = context;
 
+        initUi();
+    }
+
+    private void initUi() {
         add(new H1("Customers"));
 
-        Grid<CustomerRecord> grid = new Grid<>();
-        grid.addColumn(CustomerRecord::getId).setHeader("ID");
-        grid.addColumn(CustomerRecord::getFirstName).setHeader("First Name");
-        grid.addColumn(CustomerRecord::getLastName).setHeader("Last Name");
-        grid.addColumn(CustomerRecord::getEmail).setHeader("E-Mail");
-        grid.addColumn(new ComponentRenderer<>(customer ->
-                new RouterLink("Edit", CustomerView.class, customer.getId())));
+        grid = new Grid<>(CustomerRecord.class);
+        grid.setColumns(getPropertyName(CUSTOMER.ID), getPropertyName(CUSTOMER.FIRST_NAME),
+                getPropertyName(CUSTOMER.LAST_NAME), getPropertyName(CUSTOMER.EMAIL));
 
-        List<CustomerRecord> customers = context.selectFrom(CUSTOMER).fetch();
-        grid.setItems(customers);
+        Grid.Column<CustomerRecord> edit = grid.addColumn(
+                new ComponentRenderer<>(customer -> new RouterLink("Edit", CustomerView.class, customer.getId())));
+        edit.setFrozen(true);
+
+        grid.setColumnReorderingAllowed(true);
 
         add(grid);
 
-        add(new RouterLink("Back", IndexView.class));
+        add(new RouterLink("Back", MainView.class));
+    }
+
+    @Override
+    public void afterNavigation(AfterNavigationEvent event) {
+        List<CustomerRecord> customers = context.selectFrom(CUSTOMER).fetch();
+        grid.setItems(customers);
     }
 }

@@ -19,17 +19,17 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import static io.seventytwo.db.tables.Customer.CUSTOMER;
 
-@Route("customer")
+@Route("customers/customer")
 public class CustomerView extends VerticalLayout implements HasUrlParameter<Integer> {
 
     private final DSLContext context;
     private final TransactionTemplate transactionTemplate;
 
-    private final TextField id;
-    private final TextField firstName;
-    private final TextField lastName;
-    private final TextField email;
-    private final BeanValidationBinder<CustomerRecord> binder;
+    private TextField id;
+    private TextField firstName;
+    private TextField lastName;
+    private TextField email;
+    private BeanValidationBinder<CustomerRecord> binder;
 
     private CustomerRecord customer;
 
@@ -37,6 +37,10 @@ public class CustomerView extends VerticalLayout implements HasUrlParameter<Inte
         this.context = context;
         this.transactionTemplate = transactionTemplate;
 
+        initUi();
+    }
+
+    private void initUi() {
         binder = new BeanValidationBinder<>(CustomerRecord.class);
 
         id = new TextField("ID");
@@ -44,24 +48,25 @@ public class CustomerView extends VerticalLayout implements HasUrlParameter<Inte
         binder.forField(id)
                 .withConverter(new StringToIntegerConverter("Must enter a number"))
                 .bind(CustomerRecord::getId, null);
+
         firstName = new TextField("First Name");
         lastName = new TextField("Last Name");
         email = new TextField("E-Mail");
+
         add(new FormLayout(id, new Span(), firstName, lastName, email));
 
         binder.bindInstanceFields(this);
 
         Button button = new Button("Save");
-        button.addClickListener(event -> {
-            transactionTemplate.execute(transactionStatus -> {
-                context.attach(customer);
-                customer.store();
+        button.addClickListener(event ->
+                transactionTemplate.execute(transactionStatus -> {
+                    context.attach(customer);
+                    customer.store();
 
-                Notification.show("Customer saved", 2000, Notification.Position.TOP_END);
+                    Notification.show("Customer saved", 2000, Notification.Position.TOP_END);
 
-                return null;
-            });
-        });
+                    return null;
+                }));
 
         add(new HorizontalLayout(button, new RouterLink("Back", CustomersView.class)));
     }
