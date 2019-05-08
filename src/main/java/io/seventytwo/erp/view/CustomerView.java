@@ -1,5 +1,6 @@
 package io.seventytwo.erp.view;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
@@ -16,8 +17,9 @@ import org.jooq.DSLContext;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import static io.seventytwo.db.tables.Customer.CUSTOMER;
-import static io.seventytwo.erp.util.PropertyUtil.getPropertyName;
+import static io.seventytwo.erp.util.JooqUtil.getPropertyName;
 
+@PageTitle("ERP - Customer")
 @Route("customers/customer")
 public class CustomerView extends VerticalLayout implements HasUrlParameter<Integer> {
 
@@ -85,7 +87,9 @@ public class CustomerView extends VerticalLayout implements HasUrlParameter<Inte
             customer = new CustomerRecord();
         } else {
             customer = context.selectFrom(CUSTOMER).where(CUSTOMER.ID.eq(customerId)).fetchOne();
+            UI.getCurrent().getPage().setTitle("Customer " + customerId);
         }
         binder.setBean(customer);
+
     }
 }

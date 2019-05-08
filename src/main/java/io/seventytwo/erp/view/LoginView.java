@@ -8,7 +8,7 @@ import com.vaadin.flow.router.*;
 
 import static io.seventytwo.erp.security.SecurityUtils.isUserLoggedIn;
 
-@PageTitle("Login")
+@PageTitle("ERP - Login")
 @Route("login")
 public class LoginView extends VerticalLayout implements AfterNavigationObserver, BeforeEnterObserver {
 
@@ -30,12 +30,14 @@ public class LoginView extends VerticalLayout implements AfterNavigationObserver
         loginOverlay.getElement().setAttribute("no-forgot-password", true);
         loginOverlay.setAction("login");
         loginOverlay.setOpened(true);
+
+        UI.getCurrent().getPage().executeJavaScript("document.getElementById('vaadinLoginUsername').focus();");
     }
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
         if (isUserLoggedIn()) {
-            UI.getCurrent().navigate("/");
+            UI.getCurrent().navigate(MainView.class);
         }
     }
 
