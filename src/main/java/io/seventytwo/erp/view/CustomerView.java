@@ -10,15 +10,13 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.data.validator.EmailValidator;
-import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.HasUrlParameter;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouterLink;
+import com.vaadin.flow.router.*;
 import io.seventytwo.db.tables.records.CustomerRecord;
 import org.jooq.DSLContext;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import static io.seventytwo.db.tables.Customer.CUSTOMER;
+import static io.seventytwo.erp.util.PropertyUtil.getPropertyName;
 
 @Route("customers/customer")
 public class CustomerView extends VerticalLayout implements HasUrlParameter<Integer> {
@@ -37,33 +35,33 @@ public class CustomerView extends VerticalLayout implements HasUrlParameter<Inte
         binder = new BeanValidationBinder<>(CustomerRecord.class);
 
         TextField id = new TextField("ID");
+        id.setId(CUSTOMER.ID.getName());
         id.setReadOnly(true);
         binder.forField(id)
-                .asRequired()
+                .withNullRepresentation("")
                 .withConverter(new StringToIntegerConverter("Must be a number"))
-                .bind(CustomerRecord::getId, null);
+                .bind(getPropertyName(CUSTOMER.ID));
 
         TextField firstName = new TextField("First Name");
+        firstName.setId(CUSTOMER.FIRST_NAME.getName());
         binder.forField(firstName)
                 .asRequired()
-                .withValidator(
-                        n -> n.length() >= 3,
-                        "First name must contain at least three characters")
-                .bind(CustomerRecord::getLastName, CustomerRecord::setLastName);
+                .withValidator(n -> n.length() >= 3, "First name must contain at least three characters")
+                .bind(getPropertyName(CUSTOMER.FIRST_NAME));
 
         TextField lastName = new TextField("Last Name");
+        lastName.setId(CUSTOMER.LAST_NAME.getName());
         binder.forField(lastName)
                 .asRequired()
-                .withValidator(
-                        n -> n.length() >= 3,
-                        "Last name must contain at least three characters")
-                .bind(CustomerRecord::getLastName, CustomerRecord::setLastName);
+                .withValidator(n -> n.length() >= 3, "Last name must contain at least three characters")
+                .bind(getPropertyName(CUSTOMER.LAST_NAME));
 
         TextField email = new TextField("E-Mail");
+        email.setId(CUSTOMER.EMAIL.getName());
         binder.forField(email)
                 .asRequired()
                 .withValidator(new EmailValidator("This is not a valid e-mail address"))
-                .bind(CustomerRecord::getEmail, CustomerRecord::setEmail);
+                .bind(getPropertyName(CUSTOMER.EMAIL));
 
         add(new FormLayout(id, new Span(), firstName, lastName, email));
 
@@ -82,8 +80,12 @@ public class CustomerView extends VerticalLayout implements HasUrlParameter<Inte
     }
 
     @Override
-    public void setParameter(BeforeEvent event, Integer customerId) {
-        customer = context.selectFrom(CUSTOMER).where(CUSTOMER.ID.eq(customerId)).fetchOne();
+    public void setParameter(BeforeEvent event, @OptionalParameter Integer customerId) {
+        if (customerId == null) {
+            customer = new CustomerRecord();
+        } else {
+            customer = context.selectFrom(CUSTOMER).where(CUSTOMER.ID.eq(customerId)).fetchOne();
+        }
         binder.setBean(customer);
     }
 }

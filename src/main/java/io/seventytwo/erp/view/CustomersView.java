@@ -25,6 +25,8 @@ public class CustomersView extends VerticalLayout implements AfterNavigationObse
 
         add(new H1("Customers"));
 
+        add(new RouterLink("New", CustomerView.class));
+
         grid = new Grid<>(CustomerRecord.class);
         grid.setColumns(getPropertyName(CUSTOMER.ID), getPropertyName(CUSTOMER.FIRST_NAME),
                 getPropertyName(CUSTOMER.LAST_NAME), getPropertyName(CUSTOMER.EMAIL));
