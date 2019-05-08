@@ -9,6 +9,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
+import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
@@ -25,10 +26,6 @@ public class CustomerView extends VerticalLayout implements HasUrlParameter<Inte
     private final DSLContext context;
     private final TransactionTemplate transactionTemplate;
 
-    private TextField id;
-    private TextField firstName;
-    private TextField lastName;
-    private TextField email;
     private BeanValidationBinder<CustomerRecord> binder;
 
     private CustomerRecord customer;
@@ -39,28 +36,40 @@ public class CustomerView extends VerticalLayout implements HasUrlParameter<Inte
 
         binder = new BeanValidationBinder<>(CustomerRecord.class);
 
-        id = new TextField("ID");
+        TextField id = new TextField("ID");
         id.setReadOnly(true);
         binder.forField(id)
-                .withConverter(new StringToIntegerConverter("Must enter a number"))
+                .asRequired()
+                .withConverter(new StringToIntegerConverter("Must be a number"))
                 .bind(CustomerRecord::getId, null);
 
-        firstName = new TextField("First Name");
-        firstName.setRequired(true);
+        TextField firstName = new TextField("First Name");
+        binder.forField(firstName)
+                .asRequired()
+                .withValidator(
+                        n -> n.length() >= 3,
+                        "First name must contain at least three characters")
+                .bind(CustomerRecord::getLastName, CustomerRecord::setLastName);
 
-        lastName = new TextField("Last Name");
-        lastName.setRequired(true);
+        TextField lastName = new TextField("Last Name");
+        binder.forField(lastName)
+                .asRequired()
+                .withValidator(
+                        n -> n.length() >= 3,
+                        "Last name must contain at least three characters")
+                .bind(CustomerRecord::getLastName, CustomerRecord::setLastName);
 
-        email = new TextField("E-Mail");
-        email.setRequired(true);
-
-        binder.bindInstanceFields(this);
+        TextField email = new TextField("E-Mail");
+        binder.forField(email)
+                .asRequired()
+                .withValidator(new EmailValidator("This is not a valid e-mail address"))
+                .bind(CustomerRecord::getEmail, CustomerRecord::setEmail);
 
         add(new FormLayout(id, new Span(), firstName, lastName, email));
 
         Button button = new Button("Save");
         button.addClickListener(event ->
-                this.transactionTemplate.execute(transactionStatus -> {
+                transactionTemplate.execute(transactionStatus -> {
                     this.context.attach(customer);
                     customer.store();
 
