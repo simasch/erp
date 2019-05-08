@@ -37,10 +37,6 @@ public class CustomerView extends VerticalLayout implements HasUrlParameter<Inte
         this.context = context;
         this.transactionTemplate = transactionTemplate;
 
-        initUi();
-    }
-
-    private void initUi() {
         binder = new BeanValidationBinder<>(CustomerRecord.class);
 
         id = new TextField("ID");
@@ -50,17 +46,22 @@ public class CustomerView extends VerticalLayout implements HasUrlParameter<Inte
                 .bind(CustomerRecord::getId, null);
 
         firstName = new TextField("First Name");
-        lastName = new TextField("Last Name");
-        email = new TextField("E-Mail");
+        firstName.setRequired(true);
 
-        add(new FormLayout(id, new Span(), firstName, lastName, email));
+        lastName = new TextField("Last Name");
+        lastName.setRequired(true);
+
+        email = new TextField("E-Mail");
+        email.setRequired(true);
 
         binder.bindInstanceFields(this);
 
+        add(new FormLayout(id, new Span(), firstName, lastName, email));
+
         Button button = new Button("Save");
         button.addClickListener(event ->
-                transactionTemplate.execute(transactionStatus -> {
-                    context.attach(customer);
+                this.transactionTemplate.execute(transactionStatus -> {
+                    this.context.attach(customer);
                     customer.store();
 
                     Notification.show("Customer saved", 2000, Notification.Position.TOP_END);

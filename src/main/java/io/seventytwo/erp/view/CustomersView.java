@@ -23,10 +23,6 @@ public class CustomersView extends VerticalLayout implements AfterNavigationObse
     public CustomersView(DSLContext context) {
         this.context = context;
 
-        initUi();
-    }
-
-    private void initUi() {
         add(new H1("Customers"));
 
         grid = new Grid<>(CustomerRecord.class);

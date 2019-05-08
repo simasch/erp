@@ -11,11 +11,8 @@ import com.vaadin.flow.router.RouterLink;
 public class MainView extends VerticalLayout {
 
     public MainView() {
-        initUi();
-    }
-
-    private void initUi() {
         add(new H1("ERP"));
         add(new RouterLink("Customers", CustomersView.class));
     }
+
 }
