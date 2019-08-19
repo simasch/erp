@@ -14,7 +14,7 @@
 
     <properties>
         <java.version>11</java.version>
-        <vaadin.version>13.0.5</vaadin.version>
+        <vaadin.version>14.0.0</vaadin.version>
         <jooq.version>3.11.10</jooq.version>
     </properties>
 
@@ -111,11 +111,24 @@
                 </configuration>
                 <dependencies>
                     <dependency>
-                        <groupId>org.jooq.trial</groupId>
+                        <groupId>org.jooq</groupId>
                         <artifactId>jooq-meta-extensions</artifactId>
                         <version>${jooq.version}</version>
                     </dependency>
                 </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-maven-plugin</artifactId>
+                <version>${vaadin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-frontend</goal>
+                            <goal>build-frontend</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

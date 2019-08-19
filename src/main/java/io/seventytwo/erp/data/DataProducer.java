@@ -7,6 +7,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Random;
+
 @Component
 public class DataProducer {
 
@@ -19,16 +21,26 @@ public class DataProducer {
     @Transactional
     @EventListener(ApplicationReadyEvent.class)
     public void createCustomers() {
-        CustomerRecord justus = new CustomerRecord(null, "justus@jonas.com", "Jonas", "Justus");
-        context.attach(justus);
-        justus.store();
+        for (int i = 0; i < 1000; i++) {
+            String firstName = generateName();
+            String lastName = generateName();
+            CustomerRecord customer = new CustomerRecord(null, firstName + "." + lastName + "@foo.com", lastName, firstName);
+            context.attach(customer);
+            customer.store();
+        }
+    }
 
-        CustomerRecord peter = new CustomerRecord(null, "peter@shaw.com", "Shaw", "Peter");
-        context.attach(peter);
-        peter.store();
-
-        CustomerRecord bob = new CustomerRecord(null, "bob@andrews.com", "Andrews", "Bob");
-        context.attach(bob);
-        bob.store();
+    public String generateName() {
+        int leftLimit = 97; // letter 'a'
+        int rightLimit = 122; // letter 'z'
+        int targetStringLength = 10;
+        Random random = new Random();
+        StringBuilder buffer = new StringBuilder(targetStringLength);
+        for (int i = 0; i < targetStringLength; i++) {
+            int randomLimitedInt = leftLimit + (int)
+                    (random.nextFloat() * (rightLimit - leftLimit + 1));
+            buffer.append((char) randomLimitedInt);
+        }
+        return buffer.toString();
     }
 }

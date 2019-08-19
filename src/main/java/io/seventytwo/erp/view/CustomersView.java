@@ -12,6 +12,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
+import com.vaadin.flow.spring.annotation.VaadinSessionScope;
 import io.seventytwo.db.tables.records.CustomerRecord;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
@@ -24,8 +25,9 @@ import static io.seventytwo.erp.util.JooqUtil.getPropertyName;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNumeric;
 
+@VaadinSessionScope
 @PageTitle("ERP - Customers")
-@Route("customers")
+@Route(value = "customers", layout = ModuleLayout.class)
 public class CustomersView extends VerticalLayout {
 
     private final DSLContext context;
@@ -45,6 +47,8 @@ public class CustomersView extends VerticalLayout {
         add(new RouterLink("New", CustomerView.class));
 
         grid = new Grid<>(CustomerRecord.class);
+        grid.setPageSize(5);
+
         grid.setColumns(getPropertyName(CUSTOMER.ID), getPropertyName(CUSTOMER.FIRST_NAME),
                 getPropertyName(CUSTOMER.LAST_NAME), getPropertyName(CUSTOMER.EMAIL));
 

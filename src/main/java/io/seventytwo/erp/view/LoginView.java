@@ -5,11 +5,13 @@ import com.vaadin.flow.component.login.LoginI18n;
 import com.vaadin.flow.component.login.LoginOverlay;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.*;
+import com.vaadin.flow.spring.annotation.VaadinSessionScope;
 
 import static io.seventytwo.erp.security.SecurityUtils.isUserLoggedIn;
 
+@VaadinSessionScope
 @PageTitle("ERP - Login")
-@Route("login")
+@Route(value = "login", layout = ApplicationLayout.class)
 public class LoginView extends VerticalLayout implements AfterNavigationObserver, BeforeEnterObserver {
 
     private LoginOverlay loginOverlay = new LoginOverlay();

@@ -12,6 +12,7 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.router.*;
+import com.vaadin.flow.spring.annotation.VaadinSessionScope;
 import io.seventytwo.db.tables.records.CustomerRecord;
 import org.jooq.DSLContext;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -19,8 +20,9 @@ import org.springframework.transaction.support.TransactionTemplate;
 import static io.seventytwo.db.tables.Customer.CUSTOMER;
 import static io.seventytwo.erp.util.JooqUtil.getPropertyName;
 
+@VaadinSessionScope
 @PageTitle("ERP - Customer")
-@Route("customers/customer")
+@Route(value = "customers/customer", layout = ModuleLayout.class)
 public class CustomerView extends VerticalLayout implements HasUrlParameter<Integer> {
 
     private final DSLContext context;
@@ -45,6 +47,7 @@ public class CustomerView extends VerticalLayout implements HasUrlParameter<Inte
                 .bind(getPropertyName(CUSTOMER.ID));
 
         TextField firstName = new TextField("First Name");
+        firstName.setTitle("Gugus");
         firstName.setId(CUSTOMER.FIRST_NAME.getName());
         binder.forField(firstName)
                 .asRequired()
@@ -90,6 +93,5 @@ public class CustomerView extends VerticalLayout implements HasUrlParameter<Inte
             UI.getCurrent().getPage().setTitle("Customer " + customerId);
         }
         binder.setBean(customer);
-
     }
 }
