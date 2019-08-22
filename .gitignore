@@ -28,3 +28,4 @@ HELP.md
 ### VS Code ###
 .vscode/
 /webpack.generated.js
+/node_modules/

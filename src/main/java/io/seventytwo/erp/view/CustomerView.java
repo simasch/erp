@@ -9,6 +9,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
+import com.vaadin.flow.data.binder.BinderValidationStatus;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.router.*;
@@ -26,7 +27,6 @@ import static io.seventytwo.erp.util.JooqUtil.getPropertyName;
 public class CustomerView extends VerticalLayout implements HasUrlParameter<Integer> {
 
     private final DSLContext context;
-    private final TransactionTemplate transactionTemplate;
 
     private BeanValidationBinder<CustomerRecord> binder;
 
@@ -34,7 +34,6 @@ public class CustomerView extends VerticalLayout implements HasUrlParameter<Inte
 
     public CustomerView(DSLContext context, TransactionTemplate transactionTemplate) {
         this.context = context;
-        this.transactionTemplate = transactionTemplate;
 
         binder = new BeanValidationBinder<>(CustomerRecord.class);
 
@@ -47,7 +46,6 @@ public class CustomerView extends VerticalLayout implements HasUrlParameter<Inte
                 .bind(getPropertyName(CUSTOMER.ID));
 
         TextField firstName = new TextField("First Name");
-        firstName.setTitle("Gugus");
         firstName.setId(CUSTOMER.FIRST_NAME.getName());
         binder.forField(firstName)
                 .asRequired()
@@ -73,10 +71,13 @@ public class CustomerView extends VerticalLayout implements HasUrlParameter<Inte
         Button button = new Button("Save");
         button.addClickListener(event ->
                 transactionTemplate.execute(transactionStatus -> {
-                    this.context.attach(customer);
-                    customer.store();
+                    BinderValidationStatus<CustomerRecord> validate = binder.validate();
+                    if (validate.isOk()) {
+                        this.context.attach(customer);
+                        customer.store();
 
-                    Notification.show("Customer saved", 2000, Notification.Position.TOP_END);
+                        Notification.show("Customer saved", 2000, Notification.Position.TOP_END);
+                    }
 
                     return null;
                 }));
