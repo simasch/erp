@@ -35,6 +35,8 @@ public class CustomerView extends VerticalLayout implements HasUrlParameter<Inte
     public CustomerView(DSLContext context, TransactionTemplate transactionTemplate) {
         this.context = context;
 
+        FormLayout formLayout = new FormLayout();
+
         binder = new BeanValidationBinder<>(CustomerRecord.class);
 
         TextField id = new TextField("ID");
@@ -45,12 +47,18 @@ public class CustomerView extends VerticalLayout implements HasUrlParameter<Inte
                 .withConverter(new StringToIntegerConverter("Must be a number"))
                 .bind(getPropertyName(CUSTOMER.ID));
 
+        formLayout.addFormItem(id, "ID");
+
+        formLayout.addFormItem(new Span(), "");
+
         TextField firstName = new TextField("First Name");
         firstName.setId(CUSTOMER.FIRST_NAME.getName());
         binder.forField(firstName)
                 .asRequired()
                 .withValidator(n -> n.length() >= 3, "First name must contain at least three characters")
                 .bind(getPropertyName(CUSTOMER.FIRST_NAME));
+
+        formLayout.addFormItem(firstName, "First Name");
 
         TextField lastName = new TextField("Last Name");
         lastName.setId(CUSTOMER.LAST_NAME.getName());
@@ -59,6 +67,8 @@ public class CustomerView extends VerticalLayout implements HasUrlParameter<Inte
                 .withValidator(n -> n.length() >= 3, "Last name must contain at least three characters")
                 .bind(getPropertyName(CUSTOMER.LAST_NAME));
 
+        formLayout.addFormItem(lastName, "Last Name");
+
         TextField email = new TextField("E-Mail");
         email.setId(CUSTOMER.EMAIL.getName());
         binder.forField(email)
@@ -66,7 +76,9 @@ public class CustomerView extends VerticalLayout implements HasUrlParameter<Inte
                 .withValidator(new EmailValidator("This is not a valid e-mail address"))
                 .bind(getPropertyName(CUSTOMER.EMAIL));
 
-        add(new FormLayout(id, new Span(), firstName, lastName, email));
+        formLayout.addFormItem(email, "E-Mail");
+
+        add(formLayout);
 
         Button button = new Button("Save");
         button.addClickListener(event ->

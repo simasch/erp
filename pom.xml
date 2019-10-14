@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.1.4.RELEASE</version>
+        <version>2.1.8.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>io.seventytwo</groupId>
@@ -14,8 +14,8 @@
 
     <properties>
         <java.version>11</java.version>
-        <vaadin.version>14.0.0</vaadin.version>
-        <jooq.version>3.11.10</jooq.version>
+        <vaadin.version>14.0.6</vaadin.version>
+        <jooq.version>3.12.1</jooq.version>
     </properties>
 
     <dependencies>
