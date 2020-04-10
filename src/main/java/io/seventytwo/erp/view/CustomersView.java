@@ -35,8 +35,6 @@ public class CustomersView extends VerticalLayout {
 
     private final ConfigurableFilterDataProvider<CustomerRecord, Void, Condition> filterDataProvider;
 
-    private Grid<CustomerRecord> grid;
-
     public CustomersView(DSLContext dsl) {
         this.dsl = dsl;
 
@@ -49,7 +47,7 @@ public class CustomersView extends VerticalLayout {
 
         add(new RouterLink("New", CustomerView.class));
 
-        grid = new Grid<>(CustomerRecord.class);
+        Grid<CustomerRecord> grid = new Grid<>(CustomerRecord.class);
         grid.setPageSize(20);
 
         grid.setColumns(getPropertyName(CUSTOMER.ID), getPropertyName(CUSTOMER.FIRST_NAME), getPropertyName(CUSTOMER.LAST_NAME), getPropertyName(CUSTOMER.EMAIL));

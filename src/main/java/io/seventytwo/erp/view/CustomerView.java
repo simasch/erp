@@ -37,7 +37,8 @@ public class CustomerView extends VerticalLayout implements HasUrlParameter<Inte
     private final DSLContext dsl;
     private final TransactionTemplate transactionTemplate;
 
-    private BeanValidationBinder<CustomerRecord> customerBinder;
+    private final BeanValidationBinder<CustomerRecord> customerBinder;
+
     private Grid<PhoneRecord> phoneGrid;
     private DataProvider<PhoneRecord, Void> phoneDataProvider;
 
@@ -140,16 +141,15 @@ public class CustomerView extends VerticalLayout implements HasUrlParameter<Inte
             phoneEditor.editItem(event.getItem());
         });
 
-        phoneEditor.addSaveListener(event -> {
-            transactionTemplate.executeWithoutResult(transactionStatus -> {
-                PhoneRecord phone = event.getItem();
-                dsl.attach(phone);
-                phone.store();
+        phoneEditor.addSaveListener(event ->
+                transactionTemplate.executeWithoutResult(transactionStatus -> {
+                    PhoneRecord phone = event.getItem();
+                    dsl.attach(phone);
+                    phone.store();
 
-                phoneEditor.cancel();
-                phoneDataProvider.refreshAll();
-            });
-        });
+                    phoneEditor.cancel();
+                    phoneDataProvider.refreshAll();
+                }));
 
         phoneGrid.getElement()
                 .addEventListener("keyup", event -> phoneEditor.cancel())

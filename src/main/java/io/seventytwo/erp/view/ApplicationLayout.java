@@ -2,10 +2,7 @@ package io.seventytwo.erp.view;
 
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.page.BodySize;
-import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.router.RouterLayout;
-import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
