@@ -24,18 +24,21 @@ import static io.seventytwo.erp.util.JooqUtil.createOrderBy;
 import static io.seventytwo.erp.util.JooqUtil.getPropertyName;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNumeric;
+import static org.jooq.impl.DSL.lower;
 
 @VaadinSessionScope
 @PageTitle("ERP - Customers")
 @Route(value = "customers", layout = ModuleLayout.class)
 public class CustomersView extends VerticalLayout {
 
-    private final DSLContext context;
+    private final DSLContext dsl;
+
     private final ConfigurableFilterDataProvider<CustomerRecord, Void, Condition> filterDataProvider;
+
     private Grid<CustomerRecord> grid;
 
-    public CustomersView(DSLContext context) {
-        this.context = context;
+    public CustomersView(DSLContext dsl) {
+        this.dsl = dsl;
 
         add(new H1("Customers"));
 
@@ -47,10 +50,9 @@ public class CustomersView extends VerticalLayout {
         add(new RouterLink("New", CustomerView.class));
 
         grid = new Grid<>(CustomerRecord.class);
-        grid.setPageSize(5);
+        grid.setPageSize(20);
 
-        grid.setColumns(getPropertyName(CUSTOMER.ID), getPropertyName(CUSTOMER.FIRST_NAME),
-                getPropertyName(CUSTOMER.LAST_NAME), getPropertyName(CUSTOMER.EMAIL));
+        grid.setColumns(getPropertyName(CUSTOMER.ID), getPropertyName(CUSTOMER.FIRST_NAME), getPropertyName(CUSTOMER.LAST_NAME), getPropertyName(CUSTOMER.EMAIL));
 
         Grid.Column<CustomerRecord> edit = grid.addColumn(
                 new ComponentRenderer<>(customer -> new RouterLink("Edit", CustomerView.class, customer.getId())));
@@ -58,16 +60,41 @@ public class CustomersView extends VerticalLayout {
 
         grid.setColumnReorderingAllowed(true);
 
+        filterDataProvider = createDataProvider();
+        grid.setDataProvider(filterDataProvider);
+
+        add(grid);
+        add(new RouterLink("Back", MainView.class));
+
+        addFilter(filter);
+    }
+
+    private void addFilter(TextField filter) {
+        filter.addValueChangeListener(event -> {
+            if (isBlank(filter.getValue())) {
+                filterDataProvider.setFilter(null);
+            } else {
+                if (isNumeric(filter.getValue())) {
+                    filterDataProvider.setFilter(CUSTOMER.ID.eq(Integer.parseInt(filter.getValue())));
+                } else {
+                    filterDataProvider.setFilter(lower(CUSTOMER.FIRST_NAME).like("%" + filter.getValue().toLowerCase() + "%")
+                            .or(lower(CUSTOMER.LAST_NAME).like("%" + filter.getValue().toLowerCase() + "%"))
+                            .or(lower(CUSTOMER.EMAIL).like("%" + filter.getValue().toLowerCase() + "%")));
+                }
+            }
+        });
+    }
+
+    private ConfigurableFilterDataProvider<CustomerRecord, Void, Condition> createDataProvider() {
         CallbackDataProvider<CustomerRecord, Condition> callbackDataProvider = DataProvider.fromFilteringCallbacks(
                 query -> {
                     int offset = query.getOffset();
                     int limit = query.getLimit();
 
-                    SelectConditionStep<CustomerRecord> where = context.selectFrom(CUSTOMER).where(DSL.noCondition());
+                    SelectConditionStep<CustomerRecord> where = dsl.selectFrom(CUSTOMER).where(DSL.noCondition());
                     if (query.getFilter().isPresent()) {
                         where = where.and(query.getFilter().get());
                     }
-
                     if (!query.getSortOrders().isEmpty()) {
                         return where.orderBy(createOrderBy(CUSTOMER, query.getSortOrders())).offset(offset).limit(limit).stream();
                     } else {
@@ -76,33 +103,13 @@ public class CustomersView extends VerticalLayout {
                 },
                 query -> {
                     if (query.getFilter().isPresent()) {
-                        return context.fetchCount(context.selectFrom(CUSTOMER).where(query.getFilter().get()));
+                        return dsl.fetchCount(dsl.selectFrom(CUSTOMER).where(query.getFilter().get()));
                     } else {
-                        return context.fetchCount(CUSTOMER);
+                        return dsl.fetchCount(CUSTOMER);
                     }
                 }
         );
-        filterDataProvider = callbackDataProvider.withConfigurableFilter();
-
-        grid.setDataProvider(filterDataProvider);
-
-        add(grid);
-
-        add(new RouterLink("Back", MainView.class));
-
-        filter.addValueChangeListener(event -> {
-            if (isBlank(filter.getValue())) {
-                filterDataProvider.setFilter(null);
-            } else {
-                if (isNumeric(filter.getValue())) {
-                    filterDataProvider.setFilter(CUSTOMER.ID.eq(Integer.parseInt(filter.getValue())));
-                } else {
-                    filterDataProvider.setFilter(CUSTOMER.FIRST_NAME.lower().like("%" + filter.getValue().toLowerCase() + "%")
-                            .or(CUSTOMER.LAST_NAME.lower().like("%" + filter.getValue().toLowerCase() + "%"))
-                            .or(CUSTOMER.EMAIL.lower().like("%" + filter.getValue().toLowerCase() + "%")));
-                }
-            }
-        });
+        return callbackDataProvider.withConfigurableFilter();
     }
 
 }

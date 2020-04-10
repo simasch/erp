@@ -1,46 +1,59 @@
 package io.seventytwo.erp.data;
 
+import com.devskiller.jfairy.Fairy;
+import com.devskiller.jfairy.producer.person.Person;
 import io.seventytwo.db.tables.records.CustomerRecord;
+import io.seventytwo.db.tables.records.PhoneRecord;
 import org.jooq.DSLContext;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Random;
+import static io.seventytwo.db.tables.Customer.CUSTOMER;
+import static io.seventytwo.db.tables.Phone.PHONE;
 
 @Component
 public class DataProducer {
 
-    private final DSLContext context;
+    private final Fairy fairy = Fairy.create();
 
-    public DataProducer(DSLContext context) {
-        this.context = context;
+    private final DSLContext dsl;
+
+    public DataProducer(DSLContext dsl) {
+        this.dsl = dsl;
     }
 
     @Transactional
     @EventListener(ApplicationReadyEvent.class)
     public void createCustomers() {
-        for (int i = 0; i < 1000; i++) {
-            String firstName = generateName();
-            String lastName = generateName();
-            CustomerRecord customer = new CustomerRecord(null, firstName + "." + lastName + "@foo.com", lastName, firstName);
-            context.attach(customer);
-            customer.store();
+        for (int i = 0; i < 200; i++) {
+            Person person = fairy.person();
+
+            CustomerRecord customer = dsl.newRecord(CUSTOMER);
+            try {
+                customer.setFirstName(person.getFirstName());
+                customer.setLastName(person.getLastName());
+                customer.setEmail(person.getEmail());
+                customer.store();
+            } catch (DuplicateKeyException e) {
+                customer.setEmail("1" + customer.getEmail());
+                customer.store();
+            }
+
+            PhoneRecord mobile = dsl.newRecord(PHONE);
+            mobile.setNumber(person.getTelephoneNumber());
+            mobile.setType("MOBILE");
+            mobile.setCustomerId(customer.getId());
+            mobile.store();
+
+            PhoneRecord office = dsl.newRecord(PHONE);
+            office.setNumber("0800-123-456");
+            office.setType("OFFICE");
+            office.setCustomerId(customer.getId());
+            office.store();
         }
     }
 
-    public String generateName() {
-        int leftLimit = 97; // letter 'a'
-        int rightLimit = 122; // letter 'z'
-        int targetStringLength = 10;
-        Random random = new Random();
-        StringBuilder buffer = new StringBuilder(targetStringLength);
-        for (int i = 0; i < targetStringLength; i++) {
-            int randomLimitedInt = leftLimit + (int)
-                    (random.nextFloat() * (rightLimit - leftLimit + 1));
-            buffer.append((char) randomLimitedInt);
-        }
-        return buffer.toString();
-    }
 }

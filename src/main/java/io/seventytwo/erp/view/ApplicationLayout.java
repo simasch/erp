@@ -11,10 +11,7 @@ import com.vaadin.flow.theme.lumo.Lumo;
 
 import java.util.Objects;
 
-@Push
-@PWA(name = "ERP", shortName = "ERP")
 @Theme(Lumo.class)
-@BodySize(height = "100vh", width = "100%")
 public class ApplicationLayout extends Div implements RouterLayout {
 
     private final Div container = new Div();
