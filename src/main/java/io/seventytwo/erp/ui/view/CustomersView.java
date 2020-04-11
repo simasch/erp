@@ -34,20 +34,45 @@ public class CustomersView extends VerticalLayout {
 
     private final DSLContext dsl;
 
-    private final ConfigurableFilterDataProvider<CustomerRecord, Void, Condition> filterDataProvider;
+    private ConfigurableFilterDataProvider<CustomerRecord, Void, Condition> filterDataProvider;
 
     public CustomersView(DSLContext dsl) {
         this.dsl = dsl;
 
         add(new H1("Customers"));
 
-        TextField filter = new TextField("Filter");
-        filter.setValueChangeMode(ValueChangeMode.EAGER);
-        filter.focus();
-        add(filter);
+        add(createFilter());
 
         add(new RouterLink("New", CustomerView.class));
 
+        add(createGrid());
+
+        add(new RouterLink("Back", MainView.class));
+    }
+
+    private TextField createFilter() {
+        TextField filter = new TextField("Filter");
+        filter.setValueChangeMode(ValueChangeMode.EAGER);
+        filter.focus();
+
+        filter.addValueChangeListener(event -> {
+            if (isBlank(filter.getValue())) {
+                filterDataProvider.setFilter(null);
+            } else {
+                if (isNumeric(filter.getValue())) {
+                    filterDataProvider.setFilter(CUSTOMER.ID.eq(Integer.parseInt(filter.getValue())));
+                } else {
+                    filterDataProvider.setFilter(lower(CUSTOMER.FIRST_NAME).like("%" + filter.getValue().toLowerCase() + "%")
+                            .or(lower(CUSTOMER.LAST_NAME).like("%" + filter.getValue().toLowerCase() + "%"))
+                            .or(lower(CUSTOMER.EMAIL).like("%" + filter.getValue().toLowerCase() + "%")));
+                }
+            }
+        });
+
+        return filter;
+    }
+
+    private Grid<CustomerRecord> createGrid() {
         Grid<CustomerRecord> grid = new Grid<>(CustomerRecord.class);
         grid.setPageSize(20);
 
@@ -62,27 +87,7 @@ public class CustomersView extends VerticalLayout {
 
         filterDataProvider = createDataProvider();
         grid.setDataProvider(filterDataProvider);
-
-        add(grid);
-        add(new RouterLink("Back", MainView.class));
-
-        addFilter(filter);
-    }
-
-    private void addFilter(TextField filter) {
-        filter.addValueChangeListener(event -> {
-            if (isBlank(filter.getValue())) {
-                filterDataProvider.setFilter(null);
-            } else {
-                if (isNumeric(filter.getValue())) {
-                    filterDataProvider.setFilter(CUSTOMER.ID.eq(Integer.parseInt(filter.getValue())));
-                } else {
-                    filterDataProvider.setFilter(lower(CUSTOMER.FIRST_NAME).like("%" + filter.getValue().toLowerCase() + "%")
-                            .or(lower(CUSTOMER.LAST_NAME).like("%" + filter.getValue().toLowerCase() + "%"))
-                            .or(lower(CUSTOMER.EMAIL).like("%" + filter.getValue().toLowerCase() + "%")));
-                }
-            }
-        });
+        return grid;
     }
 
     private ConfigurableFilterDataProvider<CustomerRecord, Void, Condition> createDataProvider() {

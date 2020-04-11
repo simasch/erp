@@ -9,6 +9,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -38,10 +39,11 @@ public class CustomerView extends VerticalLayout implements HasUrlParameter<Inte
     private final DSLContext dsl;
     private final TransactionTemplate transactionTemplate;
 
-    private final BeanValidationBinder<CustomerRecord> customerBinder;
+    private BeanValidationBinder<CustomerRecord> customerBinder;
 
     private Grid<PhoneRecord> phoneGrid;
     private DataProvider<PhoneRecord, Void> phoneDataProvider;
+    private Editor<PhoneRecord> phoneEditor;
 
     private CustomerRecord customer;
 
@@ -49,6 +51,18 @@ public class CustomerView extends VerticalLayout implements HasUrlParameter<Inte
         this.dsl = dsl;
         this.transactionTemplate = transactionTemplate;
 
+        add(createForm());
+
+        add(new H2("Phone Numbers"));
+
+        add(createPhoneGrid());
+
+        add(createGridButtons());
+
+        add(createActionBar());
+    }
+
+    private FormLayout createForm() {
         FormLayout formLayout = new FormLayout();
 
         customerBinder = new BeanValidationBinder<>(CustomerRecord.class);
@@ -95,37 +109,18 @@ public class CustomerView extends VerticalLayout implements HasUrlParameter<Inte
                 .bind(getPropertyName(CUSTOMER.EMAIL));
 
         formLayout.add(email);
-
-        add(formLayout);
-
-        add(new H2("Phone Numbers"));
-
-        createPhoneGrid();
-
-        Button button = new Button("Save");
-        button.addClickListener(event ->
-                transactionTemplate.executeWithoutResult(transactionStatus -> {
-                    BinderValidationStatus<CustomerRecord> validate = customerBinder.validate();
-                    if (validate.isOk()) {
-                        customer.store();
-
-                        Notification.show("Customer saved", 2000, Notification.Position.TOP_END);
-                    }
-                }));
-
-        add(new HorizontalLayout(button, new Div(new RouterLink("Back", CustomersView.class))));
+        return formLayout;
     }
 
-    private void createPhoneGrid() {
+    private Grid<PhoneRecord> createPhoneGrid() {
         phoneGrid = new Grid<>();
-        phoneDataProvider = createDataProvider();
-        phoneGrid.setDataProvider(phoneDataProvider);
+        phoneGrid.setDataProvider(createDataProvider());
 
         Grid.Column<PhoneRecord> numberColumn = phoneGrid.addColumn(PhoneRecord::getNumber);
         Grid.Column<PhoneRecord> typeColumn = phoneGrid.addColumn(PhoneRecord::getType);
 
         Binder<PhoneRecord> phoneBinder = new Binder<>(PhoneRecord.class);
-        Editor<PhoneRecord> phoneEditor = phoneGrid.getEditor();
+        phoneEditor = phoneGrid.getEditor();
         phoneEditor.setBinder(phoneBinder);
         phoneEditor.setBuffered(true);
 
@@ -149,21 +144,39 @@ public class CustomerView extends VerticalLayout implements HasUrlParameter<Inte
                     phone.store();
 
                     phoneEditor.cancel();
-                    phoneDataProvider.refreshAll();
+                    phoneGrid.getDataProvider().refreshAll();
                 }));
 
         phoneGrid.getElement()
                 .addEventListener("keyup", event -> phoneEditor.cancel())
                 .setFilter("event.key === 'Escape' || event.key === 'Esc'");
 
-        add(phoneGrid);
+        return phoneGrid;
+    }
 
+    private DataProvider<PhoneRecord, Void> createDataProvider() {
+        return DataProvider.fromCallbacks(
+                query -> dsl
+                        .selectFrom(PHONE)
+                        .where(PHONE.CUSTOMER_ID.eq(customer.getId()))
+                        .offset(query.getOffset())
+                        .limit(query.getLimit())
+                        .stream(),
+
+                query -> dsl.fetchCount(dsl
+                        .selectFrom(PHONE)
+                        .where(PHONE.CUSTOMER_ID.eq(customer.getId())))
+        );
+    }
+
+    private HorizontalLayout createGridButtons() {
         Button addPhone = new Button("Add Phone Number");
         addPhone.addClickListener(buttonClickEvent -> {
             PhoneRecord newPhone = dsl.newRecord(PHONE);
             newPhone.setCustomerId(customer.getId());
             phoneEditor.editItem(newPhone);
         });
+
         Button deletePhone = new Button("Delete Phone Number");
         deletePhone.addClickListener(buttonClickEvent -> {
             if (!phoneGrid.getSelectedItems().isEmpty()) {
@@ -178,22 +191,27 @@ public class CustomerView extends VerticalLayout implements HasUrlParameter<Inte
             }
         });
 
-        add(new HorizontalLayout(addPhone, deletePhone));
+        return new HorizontalLayout(addPhone, deletePhone);
     }
 
-    public DataProvider<PhoneRecord, Void> createDataProvider() {
-        return DataProvider.fromCallbacks(
-                query -> dsl
-                        .selectFrom(PHONE)
-                        .where(PHONE.CUSTOMER_ID.eq(customer.getId()))
-                        .offset(query.getOffset())
-                        .limit(query.getLimit())
-                        .stream(),
-                query -> dsl.fetchCount(dsl
-                        .selectFrom(PHONE)
-                        .where(PHONE.CUSTOMER_ID.eq(customer.getId())))
+    private HorizontalLayout createActionBar() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout(createSaveButton(), new Div(new RouterLink("Back", CustomersView.class)));
+        horizontalLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+        return horizontalLayout;
+    }
 
-        );
+    private Button createSaveButton() {
+        Button button = new Button("Save");
+        button.addClickListener(event ->
+                transactionTemplate.executeWithoutResult(transactionStatus -> {
+                    BinderValidationStatus<CustomerRecord> validate = customerBinder.validate();
+                    if (validate.isOk()) {
+                        customer.store();
+
+                        Notification.show("Customer saved", 2000, Notification.Position.TOP_END);
+                    }
+                }));
+        return button;
     }
 
     @Override
