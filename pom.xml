@@ -10,7 +10,7 @@
     </parent>
 
     <groupId>io.seventytwo</groupId>
-    <artifactId>erp</artifactId>
+    <artifactId>vaadin-erp</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <properties>
