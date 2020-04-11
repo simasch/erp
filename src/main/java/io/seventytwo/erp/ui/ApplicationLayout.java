@@ -1,18 +1,19 @@
-package io.seventytwo.erp.view;
+package io.seventytwo.erp.ui;
 
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.router.ParentLayout;
 import com.vaadin.flow.router.RouterLayout;
+import com.vaadin.flow.theme.Theme;
+import com.vaadin.flow.theme.lumo.Lumo;
 
 import java.util.Objects;
 
-@ParentLayout(ApplicationLayout.class)
-public class ModuleLayout extends Div implements RouterLayout {
+@Theme(Lumo.class)
+public class ApplicationLayout extends Div implements RouterLayout {
 
     private final Div container = new Div();
 
-    public ModuleLayout() {
+    public ApplicationLayout() {
         add(container);
     }
 
@@ -22,4 +23,5 @@ public class ModuleLayout extends Div implements RouterLayout {
             container.getElement().appendChild(Objects.requireNonNull(child.getElement()));
         }
     }
+
 }

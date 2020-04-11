@@ -1,6 +1,8 @@
-package io.seventytwo.erp.view;
+package io.seventytwo.erp.ui.view;
 
+import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -9,15 +11,16 @@ import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouterLink;
+import com.vaadin.flow.router.*;
 import com.vaadin.flow.spring.annotation.VaadinSessionScope;
 import io.seventytwo.db.tables.records.CustomerRecord;
+import io.seventytwo.erp.ui.ApplicationLayout;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.SelectConditionStep;
 import org.jooq.impl.DSL;
+
+import java.util.Objects;
 
 import static io.seventytwo.db.tables.Customer.CUSTOMER;
 import static io.seventytwo.erp.util.JooqUtil.createOrderBy;
@@ -28,7 +31,7 @@ import static org.jooq.impl.DSL.lower;
 
 @VaadinSessionScope
 @PageTitle("ERP - Customers")
-@Route(value = "customers", layout = ModuleLayout.class)
+@Route(value = "customers", layout = ApplicationLayout.class)
 public class CustomersView extends VerticalLayout {
 
     private final DSLContext dsl;

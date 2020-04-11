@@ -11,13 +11,15 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Locale;
+
 import static io.seventytwo.db.tables.Customer.CUSTOMER;
 import static io.seventytwo.db.tables.Phone.PHONE;
 
 @Component
 public class DataProducer {
 
-    private final Fairy fairy = Fairy.create();
+    private final Fairy fairy = Fairy.create(new Locale("de", "CH"));
 
     private final DSLContext dsl;
 

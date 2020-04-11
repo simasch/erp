@@ -1,4 +1,4 @@
-package io.seventytwo.erp.view;
+package io.seventytwo.erp.ui.view;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -22,6 +22,7 @@ import com.vaadin.flow.router.*;
 import com.vaadin.flow.spring.annotation.VaadinSessionScope;
 import io.seventytwo.db.tables.records.CustomerRecord;
 import io.seventytwo.db.tables.records.PhoneRecord;
+import io.seventytwo.erp.ui.ApplicationLayout;
 import org.jooq.DSLContext;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -31,7 +32,7 @@ import static io.seventytwo.erp.util.JooqUtil.getPropertyName;
 
 @VaadinSessionScope
 @PageTitle("ERP - Customer")
-@Route(value = "customers/customer", layout = ModuleLayout.class)
+@Route(value = "customers/customer", layout = ApplicationLayout.class)
 public class CustomerView extends VerticalLayout implements HasUrlParameter<Integer> {
 
     private final DSLContext dsl;
