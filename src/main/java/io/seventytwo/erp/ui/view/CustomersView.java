@@ -96,7 +96,7 @@ public class CustomersView extends VerticalLayout {
                     int offset = query.getOffset();
                     int limit = query.getLimit();
 
-                    SelectConditionStep<CustomerRecord> where = dsl.selectFrom(CUSTOMER).where(DSL.noCondition());
+                    var where = dsl.selectFrom(CUSTOMER).where(DSL.noCondition());
                     if (query.getFilter().isPresent()) {
                         where = where.and(query.getFilter().get());
                     }
