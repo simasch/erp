@@ -1,5 +1,6 @@
 package io.seventytwo.erp.ui.editor;
 
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -14,6 +15,14 @@ public class CustomerEditorDialog extends Dialog {
 
     public CustomerEditorDialog(CustomerEditor customerEditor) {
         this.customerEditor = customerEditor;
+
+        setHeight("600px");
+        setWidth("800px");
+
+        Button cancelButton = new Button("Cancel");
+        cancelButton.addClickListener(event -> close());
+        this.customerEditor.setCancel(cancelButton);
+
         add(customerEditor);
     }
 

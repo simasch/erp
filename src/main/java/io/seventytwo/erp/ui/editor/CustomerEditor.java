@@ -1,5 +1,6 @@
 package io.seventytwo.erp.ui.editor;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
@@ -17,12 +18,10 @@ import com.vaadin.flow.data.binder.BinderValidationStatus;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.validator.EmailValidator;
-import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
 import io.seventytwo.db.tables.records.CustomerRecord;
 import io.seventytwo.db.tables.records.PhoneRecord;
-import io.seventytwo.erp.ui.view.CustomersView;
 import org.jooq.DSLContext;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -37,6 +36,8 @@ public class CustomerEditor extends Div {
     private final DSLContext dsl;
     private final TransactionTemplate transactionTemplate;
 
+    private Div cancel;
+
     private CustomerRecord customer;
 
     private final BeanValidationBinder<CustomerRecord> customerBinder;
@@ -48,6 +49,7 @@ public class CustomerEditor extends Div {
     public CustomerEditor(DSLContext dsl, TransactionTemplate transactionTemplate) {
         this.dsl = dsl;
         this.transactionTemplate = transactionTemplate;
+        this.cancel = new Div();
 
         customerBinder = new BeanValidationBinder<>(CustomerRecord.class);
 
@@ -61,6 +63,11 @@ public class CustomerEditor extends Div {
     public void setCustomer(CustomerRecord customer) {
         this.customer = customer;
         this.customerBinder.setBean(customer);
+    }
+
+    public void setCancel(Component cancelComponent) {
+        this.cancel.removeAll();
+        this.cancel.add(cancelComponent);
     }
 
     private FormLayout createCustomerForm() {
@@ -197,7 +204,7 @@ public class CustomerEditor extends Div {
     }
 
     private HorizontalLayout createActionBar() {
-        HorizontalLayout horizontalLayout = new HorizontalLayout(createSaveButton(), new Div(new RouterLink("Back", CustomersView.class)));
+        HorizontalLayout horizontalLayout = new HorizontalLayout(createSaveButton(), cancel);
         horizontalLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         return horizontalLayout;
     }
