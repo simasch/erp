@@ -1,5 +1,7 @@
 package io.seventytwo.erp.ui.view;
 
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -15,9 +17,10 @@ import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.spring.annotation.VaadinSessionScope;
 import io.seventytwo.db.tables.records.CustomerRecord;
 import io.seventytwo.erp.ui.ApplicationLayout;
+import io.seventytwo.erp.ui.editor.CustomerEditor;
+import io.seventytwo.erp.ui.editor.CustomerEditorDialog;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
-import org.jooq.SelectConditionStep;
 import org.jooq.impl.DSL;
 
 import static io.seventytwo.db.tables.Customer.CUSTOMER;
@@ -33,11 +36,13 @@ import static org.jooq.impl.DSL.lower;
 public class CustomersView extends VerticalLayout {
 
     private final DSLContext dsl;
+    private final CustomerEditorDialog customerEditorDialog;
 
     private ConfigurableFilterDataProvider<CustomerRecord, Void, Condition> filterDataProvider;
 
-    public CustomersView(DSLContext dsl) {
+    public CustomersView(DSLContext dsl, CustomerEditorDialog customerEditorDialog) {
         this.dsl = dsl;
+        this.customerEditorDialog = customerEditorDialog;
 
         add(new H1("Customers"));
 
@@ -80,6 +85,15 @@ public class CustomersView extends VerticalLayout {
 
         grid.addColumn(new ComponentRenderer<>(customer -> new RouterLink("Edit", CustomerView.class, customer.getId())))
                 .setWidth("100px")
+                .setFlexGrow(0)
+                .setFrozen(true);
+
+        grid.addColumn(
+                new ComponentRenderer<>(customer -> {
+                    Button openInDialog = new Button("Edit in Dialog");
+                    openInDialog.addClickListener(event -> customerEditorDialog.open(customer));
+                    return openInDialog;
+                })).setWidth("100px")
                 .setFlexGrow(0)
                 .setFrozen(true);
 
