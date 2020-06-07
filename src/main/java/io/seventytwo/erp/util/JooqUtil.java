@@ -7,7 +7,11 @@ import org.jooq.OrderField;
 import org.jooq.Table;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static io.seventytwo.erp.util.StringConverter.camelToSnakeCase;
+import static io.seventytwo.erp.util.StringConverter.snakeToCamelCase;
 
 public class JooqUtil {
 
@@ -15,47 +19,17 @@ public class JooqUtil {
     }
 
     public static String getPropertyName(Field<?> field) {
-        String fieldName = field.getName();
-        char[] chars = fieldName.toLowerCase().toCharArray();
-        boolean wasUnderScore = false;
-        StringBuilder sb = new StringBuilder();
-        for (char c : chars) {
-            if (c == '_') {
-                wasUnderScore = true;
-            } else {
-                if (wasUnderScore) {
-                    sb.append(Character.valueOf(c).toString().toUpperCase());
-                } else {
-                    sb.append(c);
-                }
-                wasUnderScore = false;
-            }
-        }
-        return sb.toString();
-    }
+        Objects.requireNonNull(field);
 
-    public static Field<?> getField(Table<?> table, String propertyName) {
-        String fieldName = getFieldName(propertyName);
-        return (Field<?>) table.field(fieldName);
+        String fieldName = field.getName();
+        return snakeToCamelCase(fieldName);
     }
 
     public static OrderField<?>[] createOrderBy(Table<?> table, List<QuerySortOrder> sortOrders) {
         return sortOrders.stream().map(sortOrder -> {
-            Field<?> field = table.field(getFieldName(sortOrder.getSorted()));
+            Field<?> field = table.field(camelToSnakeCase(sortOrder.getSorted()));
             return sortOrder.getDirection() == SortDirection.ASCENDING ? field.asc() : field.desc();
         }).toArray(OrderField[]::new);
-    }
-
-    private static String getFieldName(String propertyName) {
-        StringBuilder sb = new StringBuilder();
-        for (char c : propertyName.toCharArray()) {
-            if (Character.isUpperCase(c)) {
-                sb.append("_").append(c);
-            } else {
-                sb.append(c);
-            }
-        }
-        return sb.toString().toUpperCase();
     }
 
 }
