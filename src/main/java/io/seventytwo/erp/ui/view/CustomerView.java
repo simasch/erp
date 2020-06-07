@@ -45,7 +45,7 @@ public class CustomerView extends VerticalLayout implements HasUrlParameter<Inte
     public CustomerView(DSLContext dsl, CustomerEditor customerEditor) {
         this.dsl = dsl;
         this.customerEditor = customerEditor;
-        this.customerEditor.setCancel(new RouterLink("Back", CustomersView.class));
+        this.customerEditor.setCancelAction(() -> UI.getCurrent().navigate(CustomersView.class));
 
         add(customerEditor);
     }
