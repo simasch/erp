@@ -3,7 +3,7 @@ package io.seventytwo.erp.ui.editor;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import io.seventytwo.db.tables.records.CustomerRecord;
+import io.seventytwo.erp.db.tables.records.CustomerRecord;
 
 @UIScope
 @SpringComponent

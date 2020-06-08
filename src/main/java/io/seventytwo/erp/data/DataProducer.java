@@ -2,8 +2,8 @@ package io.seventytwo.erp.data;
 
 import com.devskiller.jfairy.Fairy;
 import com.devskiller.jfairy.producer.person.Person;
-import io.seventytwo.db.tables.records.CustomerRecord;
-import io.seventytwo.db.tables.records.PhoneRecord;
+import io.seventytwo.erp.db.tables.records.CustomerRecord;
+import io.seventytwo.erp.db.tables.records.PhoneRecord;
 import org.jooq.DSLContext;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -13,8 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Locale;
 
-import static io.seventytwo.db.tables.Customer.CUSTOMER;
-import static io.seventytwo.db.tables.Phone.PHONE;
+import static io.seventytwo.erp.db.tables.Customer.CUSTOMER;
+import static io.seventytwo.erp.db.tables.Phone.PHONE;
 
 @Component
 public class DataProducer {

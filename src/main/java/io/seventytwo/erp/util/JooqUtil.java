@@ -7,22 +7,12 @@ import org.jooq.OrderField;
 import org.jooq.Table;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static io.seventytwo.erp.util.StringConverter.camelToSnakeCase;
-import static io.seventytwo.erp.util.StringConverter.snakeToCamelCase;
 
 public class JooqUtil {
 
     private JooqUtil() {
-    }
-
-    public static String getPropertyName(Field<?> field) {
-        Objects.requireNonNull(field);
-
-        String fieldName = field.getName();
-        return snakeToCamelCase(fieldName);
     }
 
     public static OrderField<?>[] createOrderBy(Table<?> table, List<QuerySortOrder> sortOrders) {

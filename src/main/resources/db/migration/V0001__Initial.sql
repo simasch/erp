@@ -1,9 +1,9 @@
 create table customer
 (
     id         integer primary key auto_increment,
-    email      varchar(255) unique not null,
+    first_name varchar(255)        not null,
     last_name  varchar(255)        not null,
-    first_name varchar(255)        not null
+    email      varchar(255) unique not null
 );
 
 create table phone
@@ -16,3 +16,4 @@ create table phone
     CONSTRAINT fk_phone_customer
         FOREIGN KEY (customer_id) REFERENCES customer (id)
 );
+

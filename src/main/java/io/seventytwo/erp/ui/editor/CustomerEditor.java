@@ -1,6 +1,5 @@
 package io.seventytwo.erp.ui.editor;
 
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
@@ -20,14 +19,13 @@ import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
-import io.seventytwo.db.tables.records.CustomerRecord;
-import io.seventytwo.db.tables.records.PhoneRecord;
+import io.seventytwo.erp.db.tables.records.CustomerRecord;
+import io.seventytwo.erp.db.tables.records.PhoneRecord;
 import org.jooq.DSLContext;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import static io.seventytwo.db.tables.Customer.CUSTOMER;
-import static io.seventytwo.db.tables.Phone.PHONE;
-import static io.seventytwo.erp.util.JooqUtil.getPropertyName;
+import static io.seventytwo.erp.db.tables.Customer.CUSTOMER;
+import static io.seventytwo.erp.db.tables.Phone.PHONE;
 
 @UIScope
 @SpringComponent
@@ -77,7 +75,7 @@ public class CustomerEditor extends Div {
         customerBinder.forField(id)
                 .withNullRepresentation("")
                 .withConverter(new StringToIntegerConverter("Must be a number"))
-                .bind(getPropertyName(CUSTOMER.ID));
+                .bind(CustomerRecord::getId, CustomerRecord::setId);
 
         customerForm.add(new Span());
 
@@ -89,7 +87,7 @@ public class CustomerEditor extends Div {
         customerBinder.forField(firstName)
                 .asRequired()
                 .withValidator(n -> n.length() >= 3, "First name must contain at least three characters")
-                .bind(getPropertyName(CUSTOMER.FIRST_NAME));
+                .bind(CustomerRecord::getFirstName, CustomerRecord::setFirstName);
 
         TextField lastName = new TextField("Last Name");
         lastName.setWidthFull();
@@ -99,7 +97,7 @@ public class CustomerEditor extends Div {
         customerBinder.forField(lastName)
                 .asRequired()
                 .withValidator(n -> n.length() >= 3, "Last name must contain at least three characters")
-                .bind(getPropertyName(CUSTOMER.LAST_NAME));
+                .bind(CustomerRecord::getLastName, CustomerRecord::setLastName);
 
         TextField email = new TextField("E-Mail");
         email.setWidthFull();
@@ -109,7 +107,7 @@ public class CustomerEditor extends Div {
         customerBinder.forField(email)
                 .asRequired()
                 .withValidator(new EmailValidator("This is not a valid e-mail address"))
-                .bind(getPropertyName(CUSTOMER.EMAIL));
+                .bind(CustomerRecord::getEmail, CustomerRecord::setEmail);
 
         return customerForm;
     }
@@ -127,11 +125,11 @@ public class CustomerEditor extends Div {
         phoneEditor.setBuffered(true);
 
         TextField number = new TextField();
-        phoneBinder.bind(number, getPropertyName(PHONE.NUMBER));
+        phoneBinder.forField(number).bind(PhoneRecord::getNumber, PhoneRecord::setNumber);
         numberColumn.setEditorComponent(number);
 
         TextField type = new TextField();
-        phoneBinder.bind(type, getPropertyName(PHONE.TYPE));
+        phoneBinder.forField(type).bind(PhoneRecord::getType, PhoneRecord::setType);
         typeColumn.setEditorComponent(type);
 
         phoneGrid.addItemClickListener(event -> {
